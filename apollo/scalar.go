@@ -19,7 +19,7 @@ func WithDefaultString(value string) plugin.BindOption {
 }
 
 type String struct {
-	configBase
+	base
 	mutex sync.RWMutex
 	value string
 }
@@ -61,7 +61,7 @@ func WithDefaultInt(value int) plugin.BindOption {
 }
 
 type Int struct {
-	configBase
+	base
 	mutex sync.RWMutex
 	value int
 }
@@ -106,7 +106,7 @@ func WithDefaultInt32(value int32) plugin.BindOption {
 }
 
 type Int32 struct {
-	configBase
+	base
 	mutex sync.RWMutex
 	value int32
 }
@@ -151,7 +151,7 @@ func WithDefaultUint32(value uint32) plugin.BindOption {
 }
 
 type Uint32 struct {
-	configBase
+	base
 	mutex sync.RWMutex
 	value uint32
 }
@@ -196,7 +196,7 @@ func WithDefaultInt64(value int64) plugin.BindOption {
 }
 
 type Int64 struct {
-	configBase
+	base
 	mutex sync.RWMutex
 	value int64
 }
@@ -238,7 +238,7 @@ func WithDefaultUint64(value uint64) plugin.BindOption {
 }
 
 type Uint64 struct {
-	configBase
+	base
 	mutex sync.RWMutex
 	value uint64
 }
@@ -280,7 +280,7 @@ func WithDefaultFloat32(value float32) plugin.BindOption {
 }
 
 type Float32 struct {
-	configBase
+	base
 	mutex sync.RWMutex
 	value float32
 }
@@ -325,7 +325,7 @@ func WithDefaultFloat64(value float64) plugin.BindOption {
 }
 
 type Float64 struct {
-	configBase
+	base
 	mutex sync.RWMutex
 	value float64
 }

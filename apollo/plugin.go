@@ -30,46 +30,58 @@ func init() {
 	id = plugin.Register(plug)
 }
 
-type ConfigBase struct {
+type Base struct {
 }
 
 // PluginID implements plugin.Resource.
-func (base *ConfigBase) PluginID() string {
+func (base *Base) PluginID() string {
 	return id
 }
 
+// Init implements Config.
+func (base *Base) Init() {
+
+}
+
 // Bind implements Config.
-func (base *ConfigBase) Bind(opts ...plugin.BindOption) (unused []plugin.BindOption) {
+func (base *Base) Bind(opts ...plugin.BindOption) (unused []plugin.BindOption) {
 	return opts
 }
 
 type Config interface {
 	PluginID() string
+	Init()
 	Bind(opts ...plugin.BindOption) (unused []plugin.BindOption)
 	Update(value string) (err error)
 }
 
 // Config base methods
-type configBase struct {
+type base struct {
 }
 
-// PluginID implements plugin.Type.
-func (base *configBase) PluginID() string {
+// PluginID implements plugin.Resource.
+func (base *base) PluginID() string {
 	return id
 }
 
-// bind implements Config.
-func (base *configBase) bind(opts ...plugin.BindOption) (unused []plugin.BindOption) {
+// init implements config.
+func (base *base) init() {
+
+}
+
+// bind implements config.
+func (base *base) bind(opts ...plugin.BindOption) (unused []plugin.BindOption) {
 	return opts
 }
 
 type config interface {
 	PluginID() string
+	init()
 	bind(opts ...plugin.BindOption) (unused []plugin.BindOption)
 	update(value string) (err error)
 }
 
-// WithVariableReady
+// WithVariableReady binds a ready function, and supports all config.
 func WithVariableReady(fn func()) plugin.BindOption {
 	return func(varp plugin.Resource) (used bool) {
 		up, used := varp.(*configUpdater)
@@ -80,7 +92,7 @@ func WithVariableReady(fn func()) plugin.BindOption {
 	}
 }
 
-// WithVariableChange
+// WithVariableChange binds a change function, and supports all config.
 func WithVariableChange(fn func()) plugin.BindOption {
 	return func(varp plugin.Resource) (used bool) {
 		up, used := varp.(*configUpdater)
@@ -92,11 +104,12 @@ func WithVariableChange(fn func()) plugin.BindOption {
 }
 
 type configUpdater struct {
-	configBase
+	base
 	mutex    sync.RWMutex
-	value    string
 	uptime   time.Time
+	value    string
 	varp     plugin.Resource
+	initFn   func()
 	bindFn   func(opts ...plugin.BindOption) (unused []plugin.BindOption)
 	updateFn func(value string) (err error)
 	readyFn  func()
@@ -110,20 +123,21 @@ func (up *configUpdater) Bind(varp plugin.Resource, opts ...plugin.BindOption) {
 		panic(ErrUnrecognizedVariableType)
 	}
 	switch vp := varp.(type) {
-	case config:
-		up.bindFn = vp.bind
-		up.updateFn = vp.update
 	case Config:
+		up.initFn = vp.Init
 		up.bindFn = vp.Bind
 		up.updateFn = vp.Update
+	case config:
+		up.initFn = vp.init
+		up.bindFn = vp.bind
+		up.updateFn = vp.update
 	default:
 		panic(ErrUnrecognizedVariableType)
 	}
+	// Init variable
+	up.initFn()
 	// Bind options
-	unused := up.bind(opts...)
-	if len(unused) > 0 {
-		unused = up.bindFn(unused...)
-	}
+	unused := up.bindFn(up.bind(opts...)...)
 	if len(unused) > 0 {
 		panic(ErrUnrecognizedBindOption)
 	}
@@ -157,8 +171,8 @@ func (up *configUpdater) update(value string) (err error) {
 	// Update
 	err = up.updateFn(value)
 	if err == nil {
-		up.value = value
 		up.uptime = time.Now()
+		up.value = value
 		if up.readyFn != nil {
 			up.once.Do(up.readyFn)
 		}

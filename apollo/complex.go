@@ -9,7 +9,7 @@ import (
 )
 
 type Strings struct {
-	configBase
+	base
 	mutex sync.RWMutex
 	value []string
 }
@@ -40,7 +40,7 @@ func (s *Strings) update(value string) (err error) {
 }
 
 type Int64s struct {
-	configBase
+	base
 	mutex sync.RWMutex
 	value []int64
 }
