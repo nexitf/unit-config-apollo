@@ -30,12 +30,17 @@ func init() {
 	id = plugin.Register(plug)
 }
 
-type Base struct {
+// Resource Type Signature Interface Implementation
+type Resource struct {
 }
 
 // PluginID implements plugin.Resource.
-func (base *Base) PluginID() string {
+func (res *Resource) PluginID() string {
 	return id
+}
+
+type Base struct {
+	Resource
 }
 
 // Init implements Config.
@@ -53,25 +58,6 @@ type Config interface {
 	Init()
 	Bind(opts ...plugin.BindOption) (unused []plugin.BindOption)
 	Update(value string) (err error)
-}
-
-// Config base methods
-type base struct {
-}
-
-// PluginID implements plugin.Resource.
-func (base *base) PluginID() string {
-	return id
-}
-
-// init implements config.
-func (base *base) init() {
-
-}
-
-// bind implements config.
-func (base *base) bind(opts ...plugin.BindOption) (unused []plugin.BindOption) {
-	return opts
 }
 
 type config interface {
@@ -104,7 +90,7 @@ func WithVariableChange(fn func()) plugin.BindOption {
 }
 
 type configUpdater struct {
-	base
+	Resource
 	mutex    sync.RWMutex
 	uptime   time.Time
 	value    string

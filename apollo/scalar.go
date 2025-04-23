@@ -19,7 +19,7 @@ func WithDefaultString(value string) plugin.BindOption {
 }
 
 type String struct {
-	base
+	Resource
 	mutex sync.RWMutex
 	value string
 }
@@ -31,7 +31,12 @@ func (s *String) Get() string {
 	return s.value
 }
 
-// bind
+// init implements config.
+func (s *String) init() {
+
+}
+
+// bind implements config.
 func (s *String) bind(opts ...plugin.BindOption) (unused []plugin.BindOption) {
 	for _, setOpt := range opts {
 		if !setOpt(s) {
@@ -61,7 +66,7 @@ func WithDefaultInt(value int) plugin.BindOption {
 }
 
 type Int struct {
-	base
+	Resource
 	mutex sync.RWMutex
 	value int
 }
@@ -73,7 +78,12 @@ func (i *Int) Get() int {
 	return i.value
 }
 
-// bind
+// init implements config.
+func (i *Int) init() {
+
+}
+
+// bind implements config.
 func (i *Int) bind(opts ...plugin.BindOption) (unused []plugin.BindOption) {
 	for _, setOpt := range opts {
 		if !setOpt(i) {
@@ -106,7 +116,7 @@ func WithDefaultInt32(value int32) plugin.BindOption {
 }
 
 type Int32 struct {
-	base
+	Resource
 	mutex sync.RWMutex
 	value int32
 }
@@ -118,7 +128,12 @@ func (i *Int32) Get() int32 {
 	return i.value
 }
 
-// bind
+// init implements config.
+func (i *Int32) init() {
+
+}
+
+// bind implements config.
 func (i *Int32) bind(opts ...plugin.BindOption) (unused []plugin.BindOption) {
 	for _, setOpt := range opts {
 		if !setOpt(i) {
@@ -151,7 +166,7 @@ func WithDefaultUint32(value uint32) plugin.BindOption {
 }
 
 type Uint32 struct {
-	base
+	Resource
 	mutex sync.RWMutex
 	value uint32
 }
@@ -163,7 +178,12 @@ func (u *Uint32) Get() uint32 {
 	return u.value
 }
 
-// bind
+// init implements config.
+func (u *Uint32) init() {
+
+}
+
+// bind implements config.
 func (u *Uint32) bind(opts ...plugin.BindOption) (unused []plugin.BindOption) {
 	for _, setOpt := range opts {
 		if !setOpt(u) {
@@ -196,7 +216,7 @@ func WithDefaultInt64(value int64) plugin.BindOption {
 }
 
 type Int64 struct {
-	base
+	Resource
 	mutex sync.RWMutex
 	value int64
 }
@@ -208,7 +228,12 @@ func (i *Int64) Get() int64 {
 	return i.value
 }
 
-// bind
+// init implements config.
+func (u *Int64) init() {
+
+}
+
+// bind implements config.
 func (i *Int64) bind(opts ...plugin.BindOption) (unused []plugin.BindOption) {
 	for _, setOpt := range opts {
 		if !setOpt(i) {
@@ -238,7 +263,7 @@ func WithDefaultUint64(value uint64) plugin.BindOption {
 }
 
 type Uint64 struct {
-	base
+	Resource
 	mutex sync.RWMutex
 	value uint64
 }
@@ -250,7 +275,12 @@ func (u *Uint64) Get() uint64 {
 	return u.value
 }
 
-// bind
+// init implements config.
+func (u *Uint64) init() {
+
+}
+
+// bind implements config.
 func (u *Uint64) bind(opts ...plugin.BindOption) (unused []plugin.BindOption) {
 	for _, setOpt := range opts {
 		if !setOpt(u) {
@@ -280,7 +310,7 @@ func WithDefaultFloat32(value float32) plugin.BindOption {
 }
 
 type Float32 struct {
-	base
+	Resource
 	mutex sync.RWMutex
 	value float32
 }
@@ -292,7 +322,12 @@ func (f *Float32) Get() float32 {
 	return f.value
 }
 
-// bind
+// init implements config.
+func (f *Float32) init() {
+
+}
+
+// bind implements config.
 func (f *Float32) bind(opts ...plugin.BindOption) (unused []plugin.BindOption) {
 	for _, setOpt := range opts {
 		if !setOpt(f) {
@@ -325,7 +360,7 @@ func WithDefaultFloat64(value float64) plugin.BindOption {
 }
 
 type Float64 struct {
-	base
+	Resource
 	mutex sync.RWMutex
 	value float64
 }
@@ -337,7 +372,12 @@ func (f *Float64) Get() float64 {
 	return f.value
 }
 
-// bind
+// init implements config.
+func (f *Float64) init() {
+
+}
+
+// bind implements config.
 func (f *Float64) bind(opts ...plugin.BindOption) (unused []plugin.BindOption) {
 	for _, setOpt := range opts {
 		if !setOpt(f) {

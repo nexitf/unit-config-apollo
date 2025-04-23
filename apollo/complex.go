@@ -9,7 +9,7 @@ import (
 )
 
 type Strings struct {
-	base
+	Resource
 	mutex sync.RWMutex
 	value []string
 }
@@ -21,7 +21,12 @@ func (s *Strings) Get() []string {
 	return s.value
 }
 
-// bind
+// init implements config.
+func (s *Strings) init() {
+
+}
+
+// bind implements config.
 func (s *Strings) bind(opts ...plugin.BindOption) (unused []plugin.BindOption) {
 	for _, setOpt := range opts {
 		if !setOpt(s) {
@@ -35,12 +40,14 @@ func (s *Strings) bind(opts ...plugin.BindOption) (unused []plugin.BindOption) {
 func (s *Strings) update(value string) (err error) {
 	s.mutex.Lock()
 	defer s.mutex.Unlock()
-	s.value = strings.Split(value, ",")
+	if value != "" {
+		s.value = strings.Split(value, ",")
+	}
 	return
 }
 
 type Int64s struct {
-	base
+	Resource
 	mutex sync.RWMutex
 	value []int64
 }
@@ -52,7 +59,12 @@ func (i *Int64s) Get() []int64 {
 	return i.value
 }
 
-// bind
+// init implements config.
+func (i *Int64s) init() {
+
+}
+
+// bind implements config.
 func (i *Int64s) bind(opts ...plugin.BindOption) (unused []plugin.BindOption) {
 	for _, setOpt := range opts {
 		if !setOpt(i) {
@@ -66,15 +78,17 @@ func (i *Int64s) bind(opts ...plugin.BindOption) (unused []plugin.BindOption) {
 func (i *Int64s) update(value string) (err error) {
 	i.mutex.Lock()
 	defer i.mutex.Unlock()
-	var vv []int64
-	var ss = strings.Split(value, ",")
-	for _, s := range ss {
-		v, err := strconv.ParseInt(s, 10, 64)
-		if err != nil {
-			return err
+	if value != "" {
+		var vv []int64
+		var ss = strings.Split(value, ",")
+		for _, s := range ss {
+			if v, err := strconv.ParseInt(s, 10, 64); err != nil {
+				return err
+			} else {
+				vv = append(vv, v)
+			}
 		}
-		vv = append(vv, v)
+		i.value = vv
 	}
-	i.value = vv
 	return nil
 }
