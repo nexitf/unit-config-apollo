@@ -1,13 +1,10 @@
-module github.com/nexitf/unit-plugin-apollo
+module github.com/nexitf/unit-config-apollo
 
 go 1.18
 
 replace github.com/nexitf/unit => ../unit
 
-require (
-	github.com/apolloconfig/agollo/v4 v4.4.0
-	github.com/nexitf/unit v0.0.0-00010101000000-000000000000
-)
+require github.com/apolloconfig/agollo/v4 v4.4.0
 
 require (
 	github.com/fsnotify/fsnotify v1.4.9 // indirect
