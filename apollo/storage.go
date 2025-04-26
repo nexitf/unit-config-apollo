@@ -5,29 +5,99 @@ import (
 	"sync"
 
 	agollo "github.com/apolloconfig/agollo/v4"
-	configuration "github.com/apolloconfig/agollo/v4/env/config"
+	config "github.com/apolloconfig/agollo/v4/env/config"
 	"github.com/apolloconfig/agollo/v4/storage"
+)
+
+const (
+	defaultServer    = "http://127.0.0.1:8080"
+	defaultCluster   = "default"
+	defaultNamespace = "application"
 )
 
 var (
 	ErrDuplicateKeyName = errors.New("duplicate key name")
 )
 
+type Option func(*config.AppConfig)
+
+// WithCluster
+func WithCluster(cluster string) Option {
+	return func(conf *config.AppConfig) { conf.Cluster = cluster }
+}
+
+// WithNamespace
+func WithNamespace(namespace string) Option {
+	return func(conf *config.AppConfig) { conf.NamespaceName = namespace }
+}
+
+// WithServer
+func WithServer(server string) Option {
+	return func(conf *config.AppConfig) { conf.IP = server }
+}
+
+// WithSecret
+func WithSecret(secret string) Option {
+	return func(conf *config.AppConfig) { conf.Secret = secret }
+}
+
+// WithLabel
+func WithLabel(label string) Option {
+	return func(conf *config.AppConfig) { conf.Label = label }
+}
+
+// WithMustStart
+func WithMustStart() Option {
+	return func(conf *config.AppConfig) { conf.MustStart = true }
+}
+
+// WithSyncServerTimeout
+func WithSyncServerTimeout(seconds int) Option {
+	return func(conf *config.AppConfig) { conf.SyncServerTimeout = seconds }
+}
+
+// WithBackup
+func WithBackup(backup bool) Option {
+	return func(conf *config.AppConfig) { conf.IsBackupConfig = backup }
+}
+
+// WithBackupWithPath
+func WithBackupWithPath(backup bool, path string) Option {
+	return func(conf *config.AppConfig) { conf.IsBackupConfig, conf.BackupConfigPath = backup, path }
+}
+
 type Apollo struct {
 	mutex   sync.Mutex
 	storage map[string]func(value string)
 	client  agollo.Client
-	conf    *configuration.AppConfig
+	config  *config.AppConfig
 }
 
 // NewApolloStorage
-func NewApolloStorage(conf *configuration.AppConfig) (a *Apollo, err error) {
+func NewApolloStorage(appID string, opts ...Option) (a *Apollo, err error) {
 	a = &Apollo{
-		conf:    conf,
+		config:  new(config.AppConfig),
 		storage: make(map[string]func(value string)),
 	}
-	a.client, err = agollo.StartWithConfig(func() (*configuration.AppConfig, error) {
-		return conf, nil
+	// Set options
+	for _, setOpt := range opts {
+		setOpt(a.config)
+	}
+
+	// Option: config
+	a.config.AppID = appID
+	if a.config.Cluster == "" {
+		a.config.Cluster = defaultCluster
+	}
+	if a.config.NamespaceName == "" {
+		a.config.NamespaceName = defaultNamespace
+	}
+	if a.config.IP == "" {
+		a.config.IP = defaultServer
+	}
+
+	a.client, err = agollo.StartWithConfig(func() (*config.AppConfig, error) {
+		return a.config, nil
 	})
 	if err == nil {
 		a.client.AddChangeListener(a)
@@ -58,7 +128,7 @@ func (a *Apollo) Watch(name string, update func(value string)) (err error) {
 		return ErrDuplicateKeyName
 	}
 	a.storage[name] = update
-	value, err := a.client.GetConfigCache(a.conf.NamespaceName).Get(name)
+	value, err := a.client.GetConfigCache(a.config.NamespaceName).Get(name)
 	if err != nil {
 		return nil
 	} else {
